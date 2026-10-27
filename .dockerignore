@@ -1,0 +1,8 @@
+
+node_modules
+.angular
+www
+.git
+src-backup
+src-final-backup
+npm-debug.log

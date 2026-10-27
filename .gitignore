@@ -68,3 +68,16 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+
+
+# Backup folders
+/src-backup/
+/src-final-backup/
+
+# Sensitive files
+.env
+.env.*
+*.pem
+*.key
+*service-account*.json

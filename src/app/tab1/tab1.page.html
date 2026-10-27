@@ -1,17 +1,75 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 1
-    </ion-title>
+
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Add Student</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Student Registration</ion-card-title>
+      <ion-card-subtitle>
+        Enter student information below
+      </ion-card-subtitle>
+    </ion-card-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Full Name"
+          labelPlacement="stacked"
+          placeholder="Enter full name"
+          [(ngModel)]="newUser.name">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Email Address"
+          labelPlacement="stacked"
+          type="email"
+          placeholder="Enter email"
+          [(ngModel)]="newUser.email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Course"
+          labelPlacement="stacked"
+          placeholder="e.g. BS Information Technology"
+          [(ngModel)]="newUser.course">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Year Level"
+          labelPlacement="stacked"
+          placeholder="Select year level"
+          [(ngModel)]="newUser.yearLevel">
+          <ion-select-option value="1st Year">1st Year</ion-select-option>
+          <ion-select-option value="2nd Year">2nd Year</ion-select-option>
+          <ion-select-option value="3rd Year">3rd Year</ion-select-option>
+          <ion-select-option value="4th Year">4th Year</ion-select-option>
+          <ion-select-option value="5th Year">5th Year</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        class="ion-margin-top"
+        [disabled]="isSaving"
+        (click)="addUser()">
+        {{ isSaving ? 'Saving...' : 'Add Student' }}
+      </ion-button>
+
+      <ion-text color="medium" *ngIf="message">
+        <p>{{ message }}</p>
+      </ion-text>
+
+    </ion-card-content>
+  </ion-card>
 </ion-content>

@@ -1,17 +1,124 @@
+
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Manage Users</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
+      <ion-title size="large">Manage Users</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>User Records</ion-card-title>
+      <ion-card-subtitle>
+        View, update, and delete registered users
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        (click)="loadUsers()"
+        [disabled]="isLoading">
+        {{ isLoading ? 'Loading...' : 'Refresh Users' }}
+      </ion-button>
+
+      <ion-text color="medium" *ngIf="isLoading">
+        <p>Loading users...</p>
+      </ion-text>
+
+      <ion-text color="primary" *ngIf="message">
+        <p>{{ message }}</p>
+      </ion-text>
+
+      <ion-list *ngIf="!isLoading">
+
+        <ion-item *ngFor="let user of users">
+
+          <ion-label>
+            <h2>{{ user.name }}</h2>
+            <p>{{ user.email }}</p>
+
+            <ion-button
+              size="small"
+              color="warning"
+              (click)="startEdit(user)">
+              Edit
+            </ion-button>
+
+            <ion-button
+              size="small"
+              color="danger"
+              (click)="deleteUser(user)">
+              Delete
+            </ion-button>
+
+          </ion-label>
+
+        </ion-item>
+
+      </ion-list>
+
+      <p *ngIf="!isLoading && users.length === 0">
+        No users found.
+      </p>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card *ngIf="editingUserId">
+
+    <ion-card-header>
+      <ion-card-title>Edit User</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Name"
+          labelPlacement="stacked"
+          placeholder="Enter name"
+          [(ngModel)]="editUser.name">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Email"
+          labelPlacement="stacked"
+          type="email"
+          placeholder="Enter email"
+          [(ngModel)]="editUser.email">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        color="success"
+        (click)="saveEdit()"
+        [disabled]="isUpdating">
+        {{ isUpdating ? 'Updating...' : 'Save Changes' }}
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        (click)="cancelEdit()">
+        Cancel
+      </ion-button>
+
+    </ion-card-content>
+
+  </ion-card>
+
 </ion-content>

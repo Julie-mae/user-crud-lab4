@@ -1,17 +1,271 @@
+
 <ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
+  <ion-toolbar color="primary">
+    <ion-title>Student Activity Tracker</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+  <!-- COMPONENT 4: PULL TO REFRESH -->
+  <ion-refresher
+    slot="fixed"
+    (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content>
+    </ion-refresher-content>
+  </ion-refresher>
+
+  <!-- ADD ACTIVITY FORM -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Add Student Activity</ion-card-title>
+      <ion-card-subtitle>
+        Create and manage student tasks
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Student Name"
+          labelPlacement="stacked"
+          placeholder="Enter student name"
+          [(ngModel)]="newActivity.studentName">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Activity Title"
+          labelPlacement="stacked"
+          placeholder="Enter activity title"
+          [(ngModel)]="newActivity.activityTitle">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Status"
+          labelPlacement="stacked"
+          [(ngModel)]="newActivity.status">
+
+          <ion-select-option value="Pending">
+            Pending
+          </ion-select-option>
+
+          <ion-select-option value="In Progress">
+            In Progress
+          </ion-select-option>
+
+          <ion-select-option value="Completed">
+            Completed
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Due Date"
+          labelPlacement="stacked"
+          type="date"
+          [(ngModel)]="newActivity.dueDate">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        (click)="addActivity()"
+        [disabled]="isSaving">
+        {{ isSaving ? 'Saving...' : 'Add Activity' }}
+      </ion-button>
+
+      <ion-text color="primary" *ngIf="message">
+        <p>{{ message }}</p>
+      </ion-text>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- ACTIVITY RECORDS -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Activity Records</ion-card-title>
+      <ion-card-subtitle>
+        Live records from Cloud Firestore
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <!-- COMPONENT 1: SEARCHBAR -->
+      <ion-searchbar
+        placeholder="Search student or activity"
+        [(ngModel)]="searchText"
+        [debounce]="200">
+      </ion-searchbar>
+
+      <!-- COMPONENT 2: SEGMENT -->
+      <ion-segment
+        [(ngModel)]="selectedStatus"
+        scrollable="true">
+
+        <ion-segment-button value="All">
+          <ion-label>All</ion-label>
+        </ion-segment-button>
+
+        <ion-segment-button value="Pending">
+          <ion-label>Pending</ion-label>
+        </ion-segment-button>
+
+        <ion-segment-button value="In Progress">
+          <ion-label>In Progress</ion-label>
+        </ion-segment-button>
+
+        <ion-segment-button value="Completed">
+          <ion-label>Completed</ion-label>
+        </ion-segment-button>
+
+      </ion-segment>
+
+      <!-- LOADING -->
+      <p *ngIf="isLoading">
+        Loading activities...
+      </p>
+
+      <!-- EMPTY LIST -->
+      <p
+        *ngIf="!isLoading && activities.length === 0">
+        No activities yet.
+      </p>
+
+      <!-- NO SEARCH RESULTS -->
+      <p
+        *ngIf="!isLoading &&
+               activities.length > 0 &&
+               filteredActivities.length === 0">
+        No matching activities found.
+      </p>
+
+      <!-- FILTERED ACTIVITY LIST -->
+      <ion-list *ngIf="!isLoading">
+
+        <ion-item
+          *ngFor="let activity of filteredActivities">
+
+          <ion-label>
+
+            <h2>{{ activity.activityTitle }}</h2>
+
+            <p>
+              Student: {{ activity.studentName }}
+            </p>
+
+            <p>
+              Status: {{ activity.status }}
+            </p>
+
+            <p>
+              Due Date: {{ activity.dueDate }}
+            </p>
+
+            <ion-button
+              size="small"
+              color="warning"
+              (click)="startEdit(activity)">
+              Edit
+            </ion-button>
+
+            <ion-button
+              size="small"
+              color="danger"
+              [disabled]="deletingId !== null"
+              (click)="deleteActivity(activity)">
+              Delete
+            </ion-button>
+
+          </ion-label>
+
+        </ion-item>
+
+      </ion-list>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- EDIT ACTIVITY FORM -->
+  <ion-card *ngIf="editingId">
+
+    <ion-card-header>
+      <ion-card-title>Edit Activity</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Student Name"
+          labelPlacement="stacked"
+          [(ngModel)]="editActivity.studentName">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Activity Title"
+          labelPlacement="stacked"
+          [(ngModel)]="editActivity.activityTitle">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select
+          label="Status"
+          labelPlacement="stacked"
+          [(ngModel)]="editActivity.status">
+
+          <ion-select-option value="Pending">
+            Pending
+          </ion-select-option>
+
+          <ion-select-option value="In Progress">
+            In Progress
+          </ion-select-option>
+
+          <ion-select-option value="Completed">
+            Completed
+          </ion-select-option>
+
+        </ion-select>
+      </ion-item>
+
+      <ion-item>
+        <ion-input
+          label="Due Date"
+          labelPlacement="stacked"
+          type="date"
+          [(ngModel)]="editActivity.dueDate">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        color="success"
+        [disabled]="isUpdating"
+        (click)="saveEdit()">
+        {{ isUpdating ? 'Updating...' : 'Save Changes' }}
+      </ion-button>
+
+      <ion-button
+        expand="block"
+        fill="outline"
+        color="medium"
+        (click)="cancelEdit()">
+        Cancel
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
 </ion-content>
